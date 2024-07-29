@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empire Rules</title>
+    <style>
+        body {
+            background-color: linen;
+        }
+        h1 {
+            text-align: center;
+            background-color: powderblue;
+            margin: 0;
+            padding: 1em;
+            font-size: 45px;
+            font-family: monospace;
+        }
+        p {
+            text-align: center;
+            font-size: 22px;
+        }
+        .cont {
+            min-width: 200px;
+            max-width: 800px;
+            text-align: center;
+        }
+        .wrap {
+            max-width: 100%; /* Ensure text stays within container width */
+            word-wrap: break-word; /* Break words when necessary */
+            overflow-wrap: break-word; /* Ensure wrapping for overflow */
+            display: inline-block;
+        }
+        .sect {
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            font-family: monospace;
+            margin-top: 50px;
+        }
+        .fullsect {
+            background-color: rgb(240, 230, 220);
+        }
+        .centered-text {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 15px;
+            font-family: 'Times New Roman';
+        }
+        .cb ul {
+            list-style-type: disc;
+            padding: 15px;
+            padding-left: 0;
+            margin: 0;
+        }
+        .cb li {
+            display: flex;
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            margin-bottom: 10px;
+            font-size: 22px;
+            font-family: 'Times New Roman';
+        }
+    </style>
+</head>
+<body>
+    <h1>Empire: How To Play</h1>
+    <div class = "fullsect">
+        <h2 class = "sect" style = "color: navy">Story:</h2>
+        <p class = "centered-text">You live in a massive empire that just suffered a sudden collapse. The magical crystal that provided the empire its power and stability was recently stolen! Your job is to discover the culprit as soon as possible, and overcome any obstacles in your path.</p>
+    </div>
+    <div class = "fullsect">
+        <h2 class = "sect" style = "color: maroon">Objective:</h2>
+        <p class = "centered-text">Be the first player to discover the identity of the culprit.</p>
+    </div>
+    <div class = "fullsect">
+        <h2 class = "sect" style = "color: darkolivegreen">Setup:</h2>
+        <div class = "cb">
+            <ul>
+                <li>- Each player begins with 2 coins</li>
+                <li>- Each player takes a card from the deck. This is their role.</li>
+                <li>- Lay out four cards from the deck face-down on the center. These are the revelatory cards.</li>
+                <li>- Place one more card face down in the center. This is the culprit card.</li>
+                <li>- Place the remainder of the deck on the side.</li>
+            </ul>
+        </div>
+    </div>
+    <div class = "fullsect">
+        <h2 class = "sect" style = "color: darkgoldenrod">Gameplay:</h2>
+        <p class = "centered-text">Players alternate taking turns. On a turn, a player chooses between the following options:</p>
+        <p class = "centered-text"><b>Claim: </b>A player may claim between 2 and 4 coins per turn, and must have at least as many coins as they claim. The player announces how many coins they are claiming, and the opponent then responds to the claim. (See 'Responding to Claims')</p>
+        <p class = "centered-text"><b>Income: </b>Take one coin from the bank.</p>
+        <p class = "centered-text">At any point during the turn, the active player may also do any combination of the following:</p>
+        <p class = "centered-text"><b>Promote: </b>Pay 2 coins to the bank. Draw the top card of the deck and discard either your old role or the newly drawn card. Whichever you choose to keep becomes your role.</b></p>
+        <p class = "centered-text"><b>Reveal: </b>Pay 3 coins to the bank. Privately look at any two of the four revelatory cards. Then return them in the same order.</p>
+        <p class = "centered-text"><b>Spy: </b>Pay 8 coins to the bank. View the role of your opponent.</p>
+        <p class = "centered-text"><b>Discover: </b>Pay 18 coins to the bank. Privately view the culprit card and immediately end your turn.</p>
+        <p class = "centered-text"><b>Accuse: </b>Make and announce your guess at what the culprit card is. Then reveal the culprit. If the active player's guess was correct, they win the game. Otherwise, they lose the game.</p>
+    </div>
+    <div class = "fullsect">
+        <h2 class = "sect" style = "color: darkmagenta">Responding to Claims:</h2>
+        <p class = "centered-text">Whenever a player makes a claim, the opponent responds by doing one of the following things:</p>
+        <p class = "centered-text"><b>Pass: </b>Allow the player to take the amount of coins claimed from the bank.</p>
+        <p class = "centered-text"><b>Challenge: </b>Both players reveal their roles. The role with the higher number wins the challenge. If the active player wins the challenge, they take the amount of coins they claimed from the bank and opponent in any combination. If the active player loses, they pay the amount they claimed to the bank. Both players then discard their revealed roles and draw new roles, starting with the active player.</p>
+        <p class = "centered-text"><b>Guess: </b>Pay 1 coin to the bank and announce a guess at the active player's role. If the guess is incorrect, the active player takes the amount they claimed from the bank. If the guess is correct, the active player pays the amount they claimed to the other player.</p>
+    </div>
+    <div class = "fullsect">
+        <h2 class = "sect" style = "color: brown">Drawing and Discarding:</h2>
+        <p class = "centered-text">Cards are by default drawn from the deck. If no cards remain in the deck, a player draws by taking a revelatory card of their choice and immediately giving the opponent an oppurtunity to accuse. If a player must draw but the deck and set of revelatory cards are both empty, the game ends in a tie.</p>
+        <p class = "centered-text">Cards are discarded into a discard pile that is placed face-up and is always available for a player to look through.</p>        
+    </div>
+</body>
+</html>

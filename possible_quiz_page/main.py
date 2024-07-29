@@ -10,7 +10,7 @@ pygame.display.set_caption("The (Barely) Possible Quiz")
 
 
 ops = ["",
-       "Idk, 14, 21, 28",
+       "Idk lol, 14, 21, 28",
        "'What', What?, I don't know!, ABC123",
        "Hippopotamus, French, Goldsmith, Ware",
        "",

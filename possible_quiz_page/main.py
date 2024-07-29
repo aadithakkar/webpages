@@ -300,7 +300,7 @@ def draw_board():
 
 
 async def main():
-    global stime, skips, question, stage, mouse
+    global stime, skips, question, stage, mouse, lives, clicks, opening, loop
     run = True
     while run:
         draw_board()
@@ -319,6 +319,15 @@ async def main():
                 elif stage == 1:
                     #print("tried running")
                     run_click()
+                elif stage == 2:
+                    question = 1
+                    lives = 3
+                    skips = 2
+                    stage = 0
+                    clicks = 0
+                    stime = None
+                    opening = 0
+                    loop = 0
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE and question == 25:
                     question += 1
@@ -331,5 +340,6 @@ async def main():
                     stime = None
         clock.tick(30)
         await asyncio.sleep(0)
+
 
 asyncio.run(main())

@@ -1,5 +1,5 @@
 import pygame
-#import pygame.scrap as scrap
+# import pygame.scrap as scrap
 import time
 import function_eval as fe
 import sys
@@ -13,7 +13,7 @@ pygame.display.set_caption("Funky Functions")
 screen = pygame.display.set_mode([1150, 650])
 
 
-#scrap.init()
+# scrap.init()
 
 
 running = True

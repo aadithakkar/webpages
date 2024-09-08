@@ -381,6 +381,19 @@ async def main():
                         typedg = ""
                     else:
                         typedf = ""
+                elif event.unicode == "s":
+                    if level in [6, 9, 12, 18, 21]:
+                        stage = "inter"
+                        substage = "none"
+                    else:
+                        level += 1
+                        if level == 25:
+                            level = 1
+                        typedf = ""
+                        typedg = ""
+                        substage = "dial"
+                        dialnum = 0
+                        cursor = 0
                 elif event.key in [pygame.K_DOWN, pygame.K_UP] and level > 21:
                     row = 1 - row
                     cursor = len(typedf if not row else typedg)

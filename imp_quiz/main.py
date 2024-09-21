@@ -6,7 +6,7 @@ import asyncio
 pygame.init()
 
 screen = pygame.display.set_mode([800, 800])
-pygame.display.set_caption("The (Almost) Possible Quiz")
+pygame.display.set_caption("The (Almost) Impossible Quiz")
 
 symbols = pygame.transform.smoothscale(pygame.image.load("manasymbols.png"), (300, 60))
 #symbols = pygame.transform.smoothscale(pygame.image.load("imp_quiz/manasymbols.png"), (300, 60))
@@ -520,7 +520,7 @@ def draw_board():
         write(f"Deaths: {deaths}", (400, 700), (0, 0, 0), 40)
     else:
         write("Lives:", (150, 700), (0, 0, 0), 35)
-        lcolor = [(150, 0, 0), (200, 150, 0), (0, 150, 0), (0, 0, 150), (0, 0, 250), (150, 0, 150)][lives-1]
+        lcolor = [(150, 0, 0), (200, 150, 0), (0, 150, 0), (0, 0, 150), (0, 0, 250), (150, 0, 150), (150, 0, 150), (150, 0, 150)][lives-1]
         write(lives, (200, 700), lcolor, 35)
         write(f"Skips: {skips}", (650, 700), (0, 0, 0), 35)
         if question in (1, 2, 3, 5, 7, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 21, 24, 26, 29, 30, 31):
@@ -602,7 +602,7 @@ def draw_board():
             pygame.draw.rect(screen, (200, 200, 200), pygame.Rect(250, 650, 300, 100))
             write("White To Move", (400, 685), (0, 0, 0), 50)
             write("Lives:", (140, 750), (0, 0, 0), 35)
-            lcolor = [(150, 0, 0), (200, 150, 0), (0, 150, 0), (0, 0, 150), (0, 0, 250), (150, 0, 150)][lives-1]
+            lcolor = [(150, 0, 0), (200, 150, 0), (0, 150, 0), (0, 0, 150), (0, 0, 250), (150, 0, 150), (150, 0, 150), (150, 0, 150)][lives-1]
             write(lives, (190, 750), lcolor, 35)
             if counter >= 4:
                 write("Find the move best for Black", (400, 725), (0, 0, 0), 25)

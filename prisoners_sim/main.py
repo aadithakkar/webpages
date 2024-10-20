@@ -171,6 +171,9 @@ def draw_board(props, strategies, prof):
             write(f"{pc}%", (450, i * mls + 50), (0, 0, 0) if selected != i else (100, 100, 100), 40)
         pygame.draw.rect(screen, (100, 100, 100), pygame.Rect(0, 730, 600, 70))
         write(allstrats[selected].desc, (300, 765), (0, 0, 0), 30 if selected < 11 else 20)
+        for i in range(10):
+            write(i, (60 * i + 30, 710), (0, 0, 0), 40)
+        write("SIM", (30, 15), (0, 0, 0), 30)
     else:
         pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(50, 30, 500, 70))
         left = 55
@@ -187,10 +190,12 @@ def draw_board(props, strategies, prof):
                 pc = int(round(props[i], 2) * 100)
                 write(name, (150, i * 60 + 150), COLORS[i], 50)
                 write(f"{pc}%", (400, i * 60 + 150), COLORS[i], 50)
+        pygame.draw.rect(screen, (100, 100, 100), pygame.Rect(580, 5, 15, 15))
         write(f"Average Profit: {round(prof, 1)}", (300, 750), (0, 0, 0), 50)
         write("PR"[auto], (550, 750), (0, 0, 0), 50)
         write(f"{speed}x", (50, 750), (0, 0, 0), 50)
         write(f"{fps}FPS", (50, 780), (0, 0, 0), 25)
+        write("MENU", (40, 15), (0, 0, 0), 30)
 
 
 def battle(s1, s2):
@@ -232,12 +237,37 @@ async def main():
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if menu:
-                    row = (pygame.mouse.get_pos()[1] - 25) // 50
+                    mouse = pygame.mouse.get_pos()
+                    row = (mouse[1] - 25) // 50
                     if 0 <= row < len(allstrats):
                         selected = row
                         allprops[selected] = 0
+                    elif row >= len(allstrats):
+                        num = (mouse[0] - 15) // 60
+                        if 0 <= num <= 9 and allprops[selected] < 100:
+                            allprops[selected] = allprops[selected] * 10 + num
+                    elif row < 0:
+                        if sum(allprops) == 100:
+                            strategies = []
+                            s_props = []
+                            for i in range(len(allstrats)):
+                                if allprops[i] > 0:
+                                    strategies.append(allstrats[i])
+                                    s_props.append(allprops[i] / 100)
+                            props = list(s_props)
+                            menu = 0
+                            pts = [0 for _ in range(len(strategies))]
+                            newprops = [0 for _ in range(len(strategies))]
                 else:
-                    next_gen()
+                    mouse = pygame.mouse.get_pos()
+                    if (mouse[1] - 25) // 50 < 0:
+                        if mouse[0] < 300:
+                            menu = 1
+                            auto = 0
+                        else:
+                            auto = 1 - auto
+                    else:
+                        next_gen()
                 draw_board(props, strategies, sum(pts))
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:

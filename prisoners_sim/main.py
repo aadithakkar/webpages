@@ -95,27 +95,28 @@ def stf2t(mem):
 
 
 class Strategy:
-    def __init__(self, name, func):
+    def __init__(self, name, func, desc):
         self.name = name
         self.func = func
+        self.desc = desc
 
 
-sucker = Strategy("Sucker", lambda mem: 1)
-cheat = Strategy("Cheat", lambda mem: 0)
-grudger = Strategy("Grudger", lambda mem: 0 if 0 in mem else 1)
-tft = Strategy("Tit for Tat", lambda mem: mem[-1] if mem != [] else 1)
-sustft = Strategy("Sus TFT", lambda mem: mem[-1] if mem != [] else 0)
-nicealter = Strategy("Alternator", lambda mem: 1 - (len(mem) % 2))
-tf2t = Strategy("Tit for 2 Tats", lambda mem: stf2t(mem))
-defecttft = Strategy("Defect TFT", lambda mem: 1 if mem == [] else (mem[-1] if len(mem) < 199 else 0))
-rand = Strategy("Random", lambda mem: random.randint(0, 1))
-provoker = Strategy("Provoker", lambda mem: 0 if random.randint(1, 50) == 1 else 1)
-twotft = Strategy("2 Tits for Tat", lambda mem: stwotft(mem))
-didefect = Strategy("Didefect TFT", lambda mem: 1 if mem == [] else (mem[-1] if len(mem) < 198 else 0))
-recognizer = Strategy("Recognizer", lambda mem: srec(mem))
-dealter = Strategy("De-Alternator", lambda mem: (len(mem) % 2))
-sensor = Strategy("Sensor", lambda mem: ssensor(mem))
-impostor = Strategy("Impostor", lambda mem: simpostor(mem))
+sucker = Strategy("Sucker", lambda mem: 1, "Always cooperates")
+cheat = Strategy("Cheat", lambda mem: 0, "Always defects")
+grudger = Strategy("Grudger", lambda mem: 0 if 0 in mem else 1, "Defects only if opponent has ever defected")
+tft = Strategy("Tit for Tat", lambda mem: mem[-1] if mem != [] else 1, "Cooperates, then imitates opponent")
+sustft = Strategy("Sus TFT", lambda mem: mem[-1] if mem != [] else 0, "Defects, then imitates opponent")
+nicealter = Strategy("Alternator", lambda mem: 1 - (len(mem) % 2), "Alternates cooperating and defecting")
+tf2t = Strategy("Tit for 2 Tats", lambda mem: stf2t(mem), "Defects for every two opponent defects")
+defecttft = Strategy("Defect TFT", lambda mem: 1 if mem == [] else (mem[-1] if len(mem) < 199 else 0), "Tit for Tat, but defects on the last round")
+rand = Strategy("Random", lambda mem: random.randint(0, 1), "Randomly cooperates or defects")
+provoker = Strategy("Provoker", lambda mem: 0 if random.randint(1, 50) == 1 else 1, "")
+twotft = Strategy("2 Tits for Tat", lambda mem: stwotft(mem), "Defects twice for every opponent defect")
+didefect = Strategy("Didefect TFT", lambda mem: 1 if mem == [] else (mem[-1] if len(mem) < 198 else 0), "")
+recognizer = Strategy("Recognizer", lambda mem: srec(mem), "Defects then cooperates and then cooperates if the opponent plays identically")
+dealter = Strategy("De-Alternator", lambda mem: (len(mem) % 2), "Alternates defecting and cooperating")
+sensor = Strategy("Sensor", lambda mem: ssensor(mem), "")
+impostor = Strategy("Impostor", lambda mem: simpostor(mem), "Defects, cooperates, defects, then cooperates if the opponent plays identically")
 
 
 # strategies = [cheat, grudger, sucker, sustft, tft, nicealter, defecttft]
@@ -168,6 +169,8 @@ def draw_board(props, strategies, prof):
             pc = int(round(allprops[i], 2))
             write(name, (150, i * mls + 50), (0, 0, 0), 40)
             write(f"{pc}%", (450, i * mls + 50), (0, 0, 0) if selected != i else (100, 100, 100), 40)
+        pygame.draw.rect(screen, (100, 100, 100), pygame.Rect(0, 730, 600, 70))
+        write(allstrats[selected].desc, (300, 765), (0, 0, 0), 30 if selected < 11 else 20)
     else:
         pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(50, 30, 500, 70))
         left = 55

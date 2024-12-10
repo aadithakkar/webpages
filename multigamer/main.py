@@ -260,7 +260,7 @@ class Fade(pygame.sprite.Sprite):
         self.toggled = 0
 
     def update(self):
-        global score, game_running, reset_points, shield_points, next_mini
+        global score, game_running, reset_points, shield_points, next_mini, reset_interval
         elapsed = time.time() - self.stime
         next_mini = None
         if elapsed < 2:
@@ -278,6 +278,7 @@ class Fade(pygame.sprite.Sprite):
             score = 0
             reset_points = 0
             shield_points = 0
+            reset_interval = 15
             self.kill()
 
 

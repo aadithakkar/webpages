@@ -503,8 +503,27 @@ async def main():
                         gamemode = 1 - gamemode
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = pygame.mouse.get_pos()
-                for chessgame in chessgames:
-                    chessgame.response(mouse)
+                print(mouse)
+                mc = (mouse[0] // 400, mouse[1] // 400)
+                if mc == (0, 0):
+                    for bird in birds:
+                        bird.y_speed = -5
+                elif mc == (1, 0):
+                    y = mouse[1]
+                    clicked = (y - 225) // 50 + 1
+                    if 1 <= clicked <= 3:
+                        for mathgame in mathgames:
+                            mathgame.response(clicked)
+                elif mc == (0, 1):
+                    x = mouse[0]
+                    y = mouse[1]
+                    clicked = ((y - 540) // 120) * 2 + (x - 82) // 121
+                    if 0 <= clicked <= 3:
+                        for memgame in memgames:
+                            memgame.response("RTFG"[clicked].upper())
+                elif mc == (1, 1):
+                    for chessgame in chessgames:
+                        chessgame.response(mouse)
         clock.tick(60)
         await asyncio.sleep(0)
 

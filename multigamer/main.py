@@ -504,7 +504,6 @@ async def main():
                         gamemode = 1 - gamemode
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = pygame.mouse.get_pos()
-                print(mouse)
                 mc = (mouse[0] // 400, mouse[1] // 400)
                 if mc == (0, 0):
                     for bird in birds:

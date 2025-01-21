@@ -1230,6 +1230,7 @@ def initialize_scene():
 
 
 def draw_board():
+    global wasjumping
     screen.fill((200, 200, 200))
     # ground.draw(screen)
     # blocks.draw(screen)
@@ -1258,6 +1259,17 @@ def draw_board():
             write("SPACE  -  Enter Portal / Kill Clones", (400, 600), (0, 0, 0), 45, screen)
             write("ESC  -  Main Menu (Lose Unsaved Progress)", (400, 700), (0, 0, 0), 45, screen)
     fades.draw(screen)
+    if pygame.key.get_pressed()[pygame.K_w]:
+        # pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(0, 0, 50, 50))
+        pass
+    if jumping:
+        # pygame.draw.rect(screen, (255, 255, 0), pygame.Rect(50, 0, 100, 50))
+        if not wasjumping and not player.falling:
+            player.pull = -JUMP_HEIGHT
+    if jumping:
+        wasjumping = True
+    else:
+        wasjumping = False
 
 
 def interpret(code):
@@ -1302,9 +1314,22 @@ def menu():
 # initialize_scene()
 # GAME LOOP
 async def main():
-    global deaths, checkpoint, checkpoint_code, controls, in_game, unlocked, opened, mode, scenenum
+    global deaths, checkpoint, checkpoint_code, controls, in_game, unlocked, opened, mode, scenenum, jumping, wasjumping
+    jumping = False
+    wasjumping = False
     while running:
         # print(fades)
+        keys = pygame.key.get_pressed()
+        if jumping == False and (keys[pygame.K_w] or keys[pygame.K_UP]):
+            jumping = True
+            if True or (mode == 1 and player.mobile and not player.hittingwater):
+                if (not player.falling):
+                    print(23)
+                    player.pull = -JUMP_HEIGHT
+                elif (pygame.sprite.spritecollide(player, orbs, False)):
+                    player.pull = -13
+        elif not (keys[pygame.K_w] or keys[pygame.K_UP]):
+            jumping = False
         if in_game:
             all_sprites.update()
             helpboxes.update()
@@ -1340,7 +1365,7 @@ async def main():
                         controls = 0
             elif event.type == pygame.KEYDOWN:
                 if in_game:
-                    if (event.key == pygame.K_w or event.key == pygame.K_UP) and mode == 1 and player.mobile and not player.hittingwater:
+                    if False and (event.key == pygame.K_w or event.key == pygame.K_UP) and mode == 1 and player.mobile and not player.hittingwater:
                         # player.pull = -JUMP_HEIGHT
                         if (not player.falling):
                             player.pull = -JUMP_HEIGHT

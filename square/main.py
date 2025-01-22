@@ -664,6 +664,8 @@ class Player(pygame.sprite.Sprite):
         self.mobile = 1
         self.falling = 1
         self.transitioning = 0
+        self.canmove = 1
+        self.hittingwater = 0
 
     def move(self):
         keys = pygame.key.get_pressed()
@@ -764,10 +766,14 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         global scenenum
+        if self.pull < 0 and self.rect.y == 642:
+            # print(self.rect.y)
+            pass
         if pygame.sprite.spritecollide(self, solid, False):
             if not self.transitioning:
                 reset()
             self.mobile = 0
+            self.canmove = 0
             self.transitioning = 1
         self.falling = 1
         original_pos = (self.rect.x, self.rect.y)
@@ -794,39 +800,40 @@ class Player(pygame.sprite.Sprite):
                 self.pull += 0.5
             # print(self.pull)
             self.y_change += self.pull
+        if self.canmove:
 
-        self.rect.x += self.x_change
-        #print(self.x_change)
-        self.wall_collision("x")
-        self.rect.y += self.y_change
-        self.wall_collision("y")
-        #print(self.falling)
+            self.rect.x += self.x_change
+            #print(self.x_change)
+            self.wall_collision("x")
+            self.rect.y += self.y_change
+            self.wall_collision("y")
+            #print(self.falling)
 
-        # for spr in all_sprites:
-        #     spr.rect.x -= self.x_change
+            # for spr in all_sprites:
+            #     spr.rect.x -= self.x_change
 
-        if self.rect.centerx > 800:
-            self.rect.centerx = 0
-            scenenum += 1
-            initialize_scene()
-        elif self.rect.centerx < 0:
-            self.rect.centerx = 800
-            if scenenum == 199:
-                scenenum = 600
-            else:
-                scenenum -= 1
-            initialize_scene()
-        elif self.rect.centery > 800:
-            self.rect.centery = 0
-            scenenum -= 100
-            initialize_scene()
-        elif self.rect.centery < 0 and scenenum != 900:
-            self.rect.centery = 800
-            scenenum += 100
-            initialize_scene()
+            if self.rect.centerx > 800:
+                self.rect.centerx = 0
+                scenenum += 1
+                initialize_scene()
+            elif self.rect.centerx < 0:
+                self.rect.centerx = 800
+                if scenenum == 199:
+                    scenenum = 600
+                else:
+                    scenenum -= 1
+                initialize_scene()
+            elif self.rect.centery > 800:
+                self.rect.centery = 0
+                scenenum -= 100
+                initialize_scene()
+            elif self.rect.centery < 0 and scenenum != 900:
+                self.rect.centery = 800
+                scenenum += 100
+                initialize_scene()
 
-        for clone in clones:
-            clone.move(self.rect.x - original_pos[0], self.rect.y - original_pos[1])
+            for clone in clones:
+                clone.move(self.rect.x - original_pos[0], self.rect.y - original_pos[1])
 
         self.x_change = 0
         self.y_change = 0
@@ -900,6 +907,7 @@ class Fade(pygame.sprite.Sprite):
             player.rect.y = checkpoint[2] * TILESIZE
             player.transitioning = 0
             player.mobile = 1
+            player.canmove = 1
             in_game = 1
             initialize_scene()
             self.has_changed = 1
@@ -1140,8 +1148,14 @@ def write_text():
             numreached = 1
     elif scenenum == 10596:
         Text("The Abandoned Reefs", (255, 255, 255))
+    elif scenenum == 10199:
+        Text("The Trial of Timing", (200, 150, 0))
     elif scenenum == 10698:
         Text("The Trial of Intellect", (200, 150, 0))
+    elif scenenum == 10208:
+        Text("The Trial of Speed", (200, 150, 0))
+    elif scenenum == 10700:
+        Text("The Trial of Agility", (200, 150, 0))        
     elif scenenum == 10800:
         Text("The Penultimate Tomb", (255, 255, 255))
     else:
@@ -1264,7 +1278,7 @@ def draw_board():
         pass
     if jumping:
         # pygame.draw.rect(screen, (255, 255, 0), pygame.Rect(50, 0, 100, 50))
-        if not wasjumping and not player.falling:
+        if not wasjumping and not player.falling and not player.hittingwater:
             player.pull = -JUMP_HEIGHT
     if jumping:
         wasjumping = True
@@ -1355,6 +1369,7 @@ async def main():
                             checkpoint_code = ""
                         elif 320 < mouse[1] < 400:
                             checkpoint = interpret(checkpoint_code)
+                            # checkpoint = (10700, 3, 1, 1)
                             scenenum = checkpoint[0]
                             deaths = checkpoint[3] - 1
                             initialize_scene()
@@ -1400,7 +1415,7 @@ async def main():
                     elif event.key == pygame.K_ESCAPE:
                         menu()
                 else:
-                    if event.unicode in "1234567890." and event.unicode != "":
+                    if event.unicode in "1234567890.-" and event.unicode != "":
                         if checkpoint_code == "0":
                             checkpoint_code = ""
                         checkpoint_code += event.unicode

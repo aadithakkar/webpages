@@ -814,7 +814,10 @@ class Player(pygame.sprite.Sprite):
 
             if self.rect.centerx > 800:
                 self.rect.centerx = 0
-                scenenum += 1
+                if scenenum == 600:
+                    scenenum = 199
+                else:
+                    scenenum += 1
                 initialize_scene()
             elif self.rect.centerx < 0:
                 self.rect.centerx = 800
@@ -1297,6 +1300,8 @@ def interpret(code):
     if not (scenekey in sl.scenes.keys() and 0 <= pixel <= 399):
         return (0, 9.5, 12.5, 0)
     if sl.scenes[scenekey][pixel] != "3":
+        return (0, 9.5, 12.5, 0)
+    if not (split[3] != "" and split[3].isdigit()):
         return (0, 9.5, 12.5, 0)
     return [int(split[i]) for i in range(4)]
 

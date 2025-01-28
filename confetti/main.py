@@ -94,6 +94,15 @@ async def main():
                 mouse = pygame.mouse.get_pos()
                 for sq in squares:
                     sq.fall(mouse)
+            elif ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_r:
+                    mode = 0
+                    for square in squares:
+                        square.kill()
+                    for _ in range(START_SQUARES):
+                        add_sq()
+                    score = 0
+                    timer = time.time()
         if mode == 0:
             if time.time() - timer > mt:
                 mode = 1

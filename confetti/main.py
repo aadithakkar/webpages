@@ -74,6 +74,7 @@ for _ in range(START_SQUARES):
 
 async def main():
     global score, mt, timer, squares, mode, highest
+    newbest = 0
     while True:
         screen.fill((255, 255, 255))
         if mode == 0:
@@ -85,6 +86,8 @@ async def main():
             write(score, (300, 300), (0, 0, 0), 70)
             write(f"High score: {highest}", (300, 450), (0, 0, 0), 40)
             write(WAIT_TIME - round(time.time() - timer), (50, 25), (0, 0, 0), 50)
+            if newbest:
+                write("New best!", (300, 150), (0, 0, 100), 35)
         pygame.display.update()
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
@@ -111,8 +114,10 @@ async def main():
                 timer = time.time()
                 if score > highest:
                     highest = score
+                    newbest = 1
         else:
             if time.time() - timer > WAIT_TIME:
+                newbest = 0
                 mode = 0
                 score = 0
                 for _ in range(START_SQUARES):

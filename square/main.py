@@ -1398,7 +1398,7 @@ async def main():
                         for clone in clones:
                             clone.kill()
                         hits = pygame.sprite.spritecollide(player, portals, False)
-                        if hits:
+                        if hits and not player.transitioning:
                             player.pull = 0
                             if mode == 0:
                                 mode = 1

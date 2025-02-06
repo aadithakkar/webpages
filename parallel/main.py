@@ -1528,7 +1528,7 @@ def menu():
 # initialize_scene()
 # GAME LOOP
 async def main():
-    global deaths, checkpoint, checkpoint_code, controls, in_game, unlocked, opened, mode, scenenum, begun, paused, level, gravity, skips, gamestart, blockplaced, jumping, wasjumping
+    global deaths, checkpoint, checkpoint_code, controls, in_game, unlocked, opened, mode, scenenum, begun, paused, level, gravity, skips, gamestart, blockplaced, jumping, wasjumping, total_time, l10
     jumping = False
     wasjumping = False
     while running:
@@ -1644,6 +1644,21 @@ async def main():
                                     scenenum -= 10000
                             initialize_scene()
                     elif event.key == pygame.K_r:
+                        keys = pygame.key.get_pressed()
+                        if keys[pygame.K_LSHIFT] and keys[pygame.K_LCTRL]:
+                            level = 1
+                            gamestart = time.time()
+                            skips = 1
+                            l10 = 0
+                            paused = 0
+                            total_time = 0
+                            player.l9 = 0
+                            gravity = 0
+                            blockplaced = 0
+                            player.positions = []
+                            player.revi = -1
+                            player.rewind_start = 0
+                            player.wpw = 0
                         unlocked = []
                         opened = []
                         reset()

@@ -834,7 +834,8 @@ class Player(pygame.sprite.Sprite):
                 #self.pull = 5
             #print(self.pull)
         kp = 0
-        if level == 19 and pygame.key.get_pressed()[pygame.K_DELETE]:
+        keys = pygame.key.get_pressed()
+        if level == 19 and (keys[pygame.K_DELETE] or keys[pygame.K_BACKSPACE]):
             kp = 1
             if len(self.positions) >= 1:
                 if not self.rewind_start:
@@ -1452,7 +1453,8 @@ def draw_board():
                 write("RESUME (P)", (600, 875), (0, 0, 0), 30, screen)
             else:
                 write("PAUSE (P)", (600, 875), (0, 0, 0), 30, screen)
-        if level == 19 and not pygame.key.get_pressed()[pygame.K_DELETE]:
+        keys = pygame.key.get_pressed()
+        if level == 19 and not (keys[pygame.K_DELETE] or keys[pygame.K_BACKSPACE]):
             write("BACK (DEL)", (600, 875), (0, 0, 0), 30, screen)
     else:
         if controls == 0:
@@ -1653,6 +1655,7 @@ async def main():
                             paused = 0
                             total_time = 0
                             player.l9 = 0
+                            player.image.set_alpha(255)
                             gravity = 0
                             blockplaced = 0
                             player.positions = []

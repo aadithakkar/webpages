@@ -1362,7 +1362,8 @@ async def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = pygame.mouse.get_pos()
                 if in_game:
-                    if pygame.key.get_pressed()[pygame.K_LSHIFT]:
+                    pressed = pygame.key.get_pressed()
+                    if pressed[pygame.K_LSHIFT] or pressed[pygame.K_RSHIFT]:
                         spr = get_clicked(mouse[0], mouse[1])
                         if spr is not None:
                             Helpbox(spr.name, spr.desc)

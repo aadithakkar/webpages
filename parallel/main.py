@@ -1455,7 +1455,7 @@ def draw_board():
                 write("PAUSE (P)", (600, 875), (0, 0, 0), 30, screen)
         keys = pygame.key.get_pressed()
         if level == 19 and not (keys[pygame.K_DELETE] or keys[pygame.K_BACKSPACE]):
-            write("BACK (DEL)", (600, 875), (0, 0, 0), 30, screen)
+            write("REWIND (DEL)", (600, 875), (0, 0, 0), 30, screen)
     else:
         if controls == 0:
             mouse = pygame.mouse.get_pos()
@@ -1468,12 +1468,14 @@ def draw_board():
         else:
             write("WASD / Arrow Keys  -  Move Player", (400, 100), (0, 0, 0), 45, screen)
             write("Click / Scroll  -  Shoot Arrow", (400, 200), (0, 0, 0), 45, screen)
-            write("Shift + Click  -  Block Information", (400, 300), (0, 0, 0), 45, screen)
+            write("SHIFT + Click  -  Block Information", (400, 300), (0, 0, 0), 45, screen)
             write("R  -  Reset From Checkpoint (Lose All Unlocks)", (400, 400), (0, 0, 0), 45, screen)
             if level == 18:
                 write("I  -  Skip Level 18", (400, 500), (0, 0, 0), 45, screen)
-            write("SPACE  -  Enter Portal / Kill Clones", (400, 600), (0, 0, 0), 45, screen)
-            write("ESC  -  Main Menu (Lose Unsaved Progress)", (400, 700), (0, 0, 0), 45, screen)
+            else:
+                write("CTRL + SHIFT + R - Reset Game", (400, 500), (0, 0, 0), 45, screen)
+            write("SPACE  -  Enter Portal", (400, 600), (0, 0, 0), 45, screen)
+            write("ESC  -  Main Menu", (400, 700), (0, 0, 0), 45, screen)
     fades.draw(screen)
     if jumping:
         # pygame.draw.rect(screen, (255, 255, 0), pygame.Rect(50, 0, 100, 50))
@@ -1567,7 +1569,8 @@ async def main():
                                 gamestart = time.time() - paused
                                 paused = 0
                     else:
-                        if pygame.key.get_pressed()[pygame.K_LSHIFT]:
+                        pressed = pygame.key.get_pressed()
+                        if pressed[pygame.K_LSHIFT] or pressed[pygame.K_RSHIFT]:
                             spr = get_clicked(mouse[0], mouse[1])
                             if spr is not None:
                                 Helpbox(spr.name, spr.desc)

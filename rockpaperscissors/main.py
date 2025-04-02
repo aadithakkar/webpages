@@ -2,20 +2,27 @@ import pygame, sys, random, asyncio
 
 pygame.init()
 
-screen = pygame.display.set_mode([800, 900])
+screen = pygame.display.set_mode([800, 1000])
 pygame.display.set_caption("Rock Paper Scissors Simulator")
 
 PLAYERSIZE = 40
 COLORS = {"rock": (100, 100, 100), "paper": (150, 150, 150), "scissors": (200, 150, 0)}
 
-def draw_screen(screen, population, speed, updated):
+def draw_screen(screen, population, speed, updated, percents, cpop):
     screen.fill((200, 200, 200))
     all_sprites.draw(screen)
-    write(f"Population: {population}", (200, 850), (0, 0, 0) if updated else (150, 150, 150), 50, screen)
-    write(f"Speed: {speed}", (600, 850), (0, 0, 0) if updated else (150, 150, 150), 50, screen)
+    write(f"Population: {population}", (200, 950), (0, 0, 0) if updated else (150, 150, 150), 50, screen)
+    write(f"Speed: {speed}", (600, 950), (0, 0, 0) if updated else (150, 150, 150), 50, screen)
+    current_pop = cpop
+    rock = int(percents["rock"] / current_pop * 800)
+    pygame.draw.rect(screen, (100, 100, 100), pygame.Rect(0, 800, rock, 100))
+    paper = int(percents["paper"] / current_pop * 800)
+    pygame.draw.rect(screen, (150, 150, 150), pygame.Rect(rock, 800, paper, 100))
+    pygame.draw.rect(screen, (200, 150, 0), pygame.Rect(rock + paper, 800, 800 - rock - paper, 100))
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, speed):
+        global totals
         self.groups = all_sprites, players
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.image = pygame.Surface([PLAYERSIZE, PLAYERSIZE])
@@ -28,6 +35,7 @@ class Player(pygame.sprite.Sprite):
         self.dy = (1 - self.dx ** 2) ** 0.5
         self.speed = speed
         self.type = random.choice(["rock", "paper", "scissors"])
+        totals[self.type] += 1
         self.image.fill(COLORS[self.type])
 
     def update(self):
@@ -40,13 +48,17 @@ class Player(pygame.sprite.Sprite):
             self.dy *= -1
         for hit in pygame.sprite.spritecollide(self, players, False):
             if (self.type, hit.type) in [("paper", "scissors"), ("scissors", "rock"), ("rock", "paper")]:
+                totals[self.type] -= 1
                 self.type = hit.type
+                totals[self.type] += 1
                 self.image.fill(COLORS[self.type])
 
 all_sprites = pygame.sprite.LayeredUpdates()
 players = pygame.sprite.Group()
 
 def init_sim(population, speed):
+    global totals
+    totals = {"rock": 0, "paper": 0, "scissors": 0}
     for player in players:
         player.kill()
     for _ in range(population):
@@ -59,17 +71,23 @@ def write(txt, pos, col, size, surf):
     surf.blit(textimg, (pos[0]-isize[0]/2, pos[1]-isize[1]/2))
 
 async def main():
+    global totals
+    totals = {"rock": 0, "paper": 0, "scissors": 0}
+    percents = {"rock": 0, "paper": 0, "scissors": 0}
     running = True
     playing = True
     population = 50
     speed = 5
     clock = pygame.time.Clock()
     updated = 1
+    current_pop = 50
+    epsilon = 0.001
     init_sim(population, speed)
     while running:
+        # print(totals, percents, sum(percents.values()))
         if playing:
             all_sprites.update()
-        draw_screen(screen, population, speed, updated)
+        draw_screen(screen, population, speed, updated, percents, current_pop)
         keys = pygame.key.get_pressed()
         shifting = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
         for event in pygame.event.get():
@@ -84,6 +102,7 @@ async def main():
                     playing = False
                     updated = 1
                     init_sim(population, speed)
+                    current_pop = population
                 elif event.key == pygame.K_SPACE:
                     playing = not playing
                 elif event.key == pygame.K_LEFT:
@@ -104,6 +123,22 @@ async def main():
                 elif event.key == pygame.K_DOWN:
                     updated = 0
                     speed = max(0, speed - 1)
+        for key in percents.keys():
+            disc = totals[key] - percents[key]
+            if totals[key] == 0 and abs(disc) < epsilon:
+                # print("resetting", disc, totals[key], percents[key])
+                percents[key] = totals[key]
+            elif totals[key] == current_pop and abs(disc) < epsilon:
+                percents[key] = totals[key]
+            else:
+                percents[key] += (disc) / 10
+            # if totals[key] == 0:
+            #     percents[key] = 0
+            # elif totals[key] == sum(totals.values()):
+            #     percents[key] = totals[key]
+            # else:
+            #     disc = totals[key] - percents[key]
+            #     percents[key] += (disc) / 10
         pygame.display.update()
         clock.tick(60)
         await asyncio.sleep(0)

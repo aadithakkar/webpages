@@ -19,6 +19,7 @@ class Tile(pygame.sprite.Sprite):
         self.rect.x = x * 100
         self.rect.y = y * 100
         self.selected = 0
+        self.oldpos = None
         pygame.draw.rect(self.image, bgcol, pygame.Rect(5, 5, self.width - 10, self.height - 10))
         pygame.draw.rect(self.image, col, pygame.Rect(15, 15, self.width - 30, self.height - 30))
     def update(self):
@@ -26,30 +27,38 @@ class Tile(pygame.sprite.Sprite):
             mx, my = pygame.mouse.get_pos()
             distx = max(-90, min(mx - self.rect.centerx, 90))
             disty = max(-90, min(my - self.rect.centery, 90))
-            self.rect.x += distx
-            if self.rect.x < 0:
-                self.rect.x = 0
-            elif self.rect.right > 400:
-                self.rect.x = 400 - self.width
-            hits = pygame.sprite.spritecollide(self, all_sprites, False)
-            hits.remove(self)
-            if hits:
-                if distx < 0:
-                    self.rect.x = max([hit.rect.right for hit in hits])
-                else:
-                    self.rect.x = min([hit.rect.x for hit in hits]) - self.width
-            self.rect.y += disty
-            if self.rect.y < 0:
-                self.rect.y = 0
-            elif self.rect.bottom > 500:
-                self.rect.y = 500 - self.height
-            hits = pygame.sprite.spritecollide(self, all_sprites, False)
-            hits.remove(self)
-            if hits:
-                if disty < 0:
-                    self.rect.y = max([hit.rect.bottom for hit in hits])
-                else:
-                    self.rect.y = min([hit.rect.y for hit in hits]) - self.height
+            if abs(distx) > abs(disty):
+                self.mx(distx)
+                self.my(disty)
+            else:
+                self.my(disty)
+                self.mx(distx)
+    def mx(self, distx):
+        self.rect.x += distx
+        if self.rect.x < 0:
+            self.rect.x = 0
+        elif self.rect.right > 400:
+            self.rect.x = 400 - self.width
+        hits = pygame.sprite.spritecollide(self, all_sprites, False)
+        hits.remove(self)
+        if hits:
+            if distx < 0:
+                self.rect.x = max([hit.rect.right for hit in hits])
+            else:
+                self.rect.x = min([hit.rect.x for hit in hits]) - self.width
+    def my(self, disty):
+        self.rect.y += disty
+        if self.rect.y < 0:
+            self.rect.y = 0
+        elif self.rect.bottom > 500:
+            self.rect.y = 500 - self.height
+        hits = pygame.sprite.spritecollide(self, all_sprites, False)
+        hits.remove(self)
+        if hits:
+            if disty < 0:
+                self.rect.y = max([hit.rect.bottom for hit in hits])
+            else:
+                self.rect.y = min([hit.rect.y for hit in hits]) - self.height
 
 def write(txt, pos, col, size, surf):
     font = pygame.font.Font(None, size)
@@ -57,11 +66,12 @@ def write(txt, pos, col, size, surf):
     isize = textimg.get_size()
     surf.blit(textimg, (pos[0]-isize[0]/2, pos[1]-isize[1]/2))
 
-def draw_screen(screen):
+def draw_screen(screen, moves):
     screen.fill((150, 150, 150))
     # pygame.draw.rect(screen, (250, 0, 0), pygame.Rect(0, 0, 100, 100))
     all_sprites.draw(screen)
     write(f"Level {level + 1}", (200, 550), (0, 0, 0), 50, screen)
+    write(moves, (350, 550), (0, 0, 0), 40, screen)
 
 all_sprites = pygame.sprite.LayeredUpdates()
 
@@ -79,6 +89,8 @@ codes = [
 
 
 def init_scene(level):
+    global changed
+    changed = 1
     for spr in all_sprites:
         spr.kill()
     create_blocks(level)
@@ -100,16 +112,18 @@ def create_blocks(level):
                 Tile(j, i, (2, 1), (0, 200, 50), (0, 215, 65))
 
 async def main():
-    global winner, level
+    global winner, level, changed
+    changed = 0
     level = 0
     running = True
     clock = pygame.time.Clock()
     winner = None
     snap = 1
+    moves = 0
     create_blocks(level)
     while running:
         all_sprites.update()
-        draw_screen(screen)
+        draw_screen(screen, moves)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -123,11 +137,17 @@ async def main():
                     for tile in all_sprites:
                         if tile.rect.x < mx < tile.rect.x + tile.width and tile.rect.y < my < tile.rect.y + tile.height:
                             tile.selected = 1
+                            tile.oldpos = (tile.rect.x, tile.rect.y)
             elif event.type == pygame.MOUSEBUTTONUP:
                 for tile in all_sprites:
                     if snap and tile.selected:
                         tile.rect.x = ((tile.rect.x + 50) // 100) * 100
                         tile.rect.y = ((tile.rect.y + 50) // 100) * 100
+                        if tile.oldpos != (tile.rect.x, tile.rect.y):
+                            if changed == 1:
+                                changed = 0
+                                moves = 0
+                            moves += 1
                     tile.selected = 0
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:

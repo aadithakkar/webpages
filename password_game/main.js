@@ -331,7 +331,7 @@ async function satisfied(rule, password) {
         case 18:
             var sum = 0
             for (var i = 0; i < password.length; i++) {
-                if (!isNaN(password[i])) {
+                if ("123456789".includes(password[i])) {
                     sum += parseInt(password[i])
                 }
             }

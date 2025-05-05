@@ -176,7 +176,7 @@ function countrySubset(letter, arr) {
             return arr.slice(start, i)
         }
     }
-    return countries.slice(start, countries.length)
+    return arr.slice(start, arr.length)
 }
 
 var countrySubarr = countrySubset(letters[2], countries);
@@ -194,9 +194,9 @@ function scramble(words) {
             newString += char
             word.splice(word.indexOf(char), 1)
         }
-        newString += " ".slice(0, -1)
+        newString += " "
     }
-    return newString
+    return newString.slice(0, -1)
 }
 
 function scrambled(length) {
@@ -239,7 +239,7 @@ async function satisfied(rule, password) {
     if (satisfiedRules.includes(rule)) {
         return true
     }
-    // if (rule < 22) {
+    // if (rule < 16) {
     //     return true
     // }
     switch (rule) {
@@ -290,7 +290,7 @@ async function satisfied(rule, password) {
             }
             return false
         case 11:
-            return Math.abs(vowelFreq(passwordLow) / password.length - 0.2) < 0.0001
+            return vowelFreq(passwordLow) * 5 == password.length
         case 12:
             return password.includes("🦥")
         case 13:
@@ -423,7 +423,14 @@ function updateFood() {
             if (password.length - password.split('🌴').join('').length > 16) {
                 end_game("DIA WAS OVERFED")
             }
-            document.getElementById('textbox').value = password.replace('🌴', '')
+            var tbox = document.getElementById('textbox');
+            var cursor = tbox.selectionStart;
+            var index = password.indexOf('🌴')
+            if (cursor > index) {
+                cursor -= 2
+            }
+            tbox.value = password.slice(0, index) + password.slice(index + 2)
+            tbox.selectionStart = tbox.selectionEnd = cursor;
         } else {
             end_game("DIA HAS STARVED")
         }

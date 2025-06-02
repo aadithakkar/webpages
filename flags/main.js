@@ -3,7 +3,7 @@ const countries = [
     "armenia", "australia", "austria", "azerbaijan", "bahamas", "bahrain", "bangladesh", "barbados",
     "belarus", "belgium", "belize", "benin", "bhutan", "bolivia", "bosnia and herzegovina",
     "botswana", "brazil", "brunei", "bulgaria", "burkina faso", "burundi", "cabo verde", "cambodia",
-    "cameroon", "canada", "central african republic", "chad", "chile", "china", "colombia", "comoros",
+    "cameroon", "canada", "car", "chad", "chile", "china", "colombia", "comoros",
     "congo", "costa rica", "croatia", "cuba", "cyprus",
     "czech republic", "denmark", "djibouti", "dominica", "dominican republic", "ecuador", "egypt",
     "el salvador", "equatorial guinea", "eritrea", "estonia", "eswatini", "ethiopia", "fiji",
@@ -56,6 +56,8 @@ var iter = 0;
 var flaglist;
 
 function createScrambled(lower, upper) {
+    lower = lower.toLowerCase()
+    upper = upper.toLowerCase()
     // var lower = document.getElementById('lower').value
     // var upper = document.getElementById('upper').value
     var list = [];

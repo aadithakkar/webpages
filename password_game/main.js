@@ -3,7 +3,11 @@ var rigged = 0;
 var playing = true;
 
 var tens = Math.floor(Math.random() * 5) + 5;
-var totalSum = tens * 10 + Math.floor(tens + Math.random() * (10 - tens));
+if (tens == 9) {
+   var totalSum = 99
+} else {
+    var totalSum = tens * 11 + Math.floor(Math.random() * 2);
+}
 var numbers = Array(0);
 numbers.push(Math.floor(Math.random() * totalSum / 2))
 numbers.push(Math.floor(Math.random() * (totalSum - numbers[0])))

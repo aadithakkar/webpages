@@ -9,6 +9,8 @@ DARK_COLS = [(140, 0, 0), (0, 120, 150), (150, 100, 0), (150, 150, 150)]
 COLS = [(180, 40, 20), (0, 150, 200), (200, 150, 0), (225, 225, 225)]
 
 SECS_PER_TURN = 120
+BUTTON_SIZE = 90
+BUTTON_GAP = 8
 
 class Button(pygame.sprite.Sprite):
     def __init__(self, x, y, wid, height, game):
@@ -57,20 +59,20 @@ class TurnButton(Button):
 
 class Pause(Button):
     def __init__(self, x, y, dcol, col, game):
-        super().__init__(x, y, 50, 50, game)
+        super().__init__(x, y, BUTTON_SIZE, BUTTON_SIZE, game)
         self.image.fill(dcol)
-        pygame.draw.rect(self.image, col, pygame.Rect(5, 5, 40, 40))
-        write("P/R", (25, 25), dcol, 30, self.image)
+        pygame.draw.rect(self.image, col, pygame.Rect(BUTTON_GAP, BUTTON_GAP, (BUTTON_SIZE - BUTTON_GAP * 2), (BUTTON_SIZE - BUTTON_GAP * 2)))
+        write("P/R", (BUTTON_SIZE / 2, BUTTON_SIZE / 2), dcol, 40, self.image)
     def use(self):
         self.game.paused = 1 - self.game.paused
 
 class Extension(Button):
     def __init__(self, x, y, amt, dcol, col, game):
-        super().__init__(x, y, 50, 50, game)
+        super().__init__(x, y, BUTTON_SIZE, BUTTON_SIZE, game)
         self.image.fill(dcol)
-        pygame.draw.rect(self.image, col, pygame.Rect(5, 5, 40, 40))
+        pygame.draw.rect(self.image, col, pygame.Rect(BUTTON_GAP, BUTTON_GAP, (BUTTON_SIZE - BUTTON_GAP * 2), (BUTTON_SIZE - BUTTON_GAP * 2)))
         self.amt = amt
-        write(f"+{amt}", (25, 25), dcol, 35, self.image)
+        write(f"+{amt}", (BUTTON_SIZE / 2, BUTTON_SIZE / 2), dcol, 50, self.image)
         self.alpha = 255
         self.fading = 0
     def use(self):
@@ -123,14 +125,14 @@ class Game:
                             spr.use()
                             break
                     if not actioned and self.game_stage < 2:
-                        if mouse[1] > 120:
+                        if mouse[1] > 70 + BUTTON_SIZE:
                             if self.stage == 0:
                                 self.stage = 1
                                 self.stime = time.perf_counter()
                                 self.paused = 0
                                 for i, amt in enumerate(self.extensions[self.turn]):
-                                    Extension(50 + 75 * i, 50, amt, DARK_COLS[self.turn], COLS[self.turn], self)
-                                Pause(700, 50, DARK_COLS[self.turn], COLS[self.turn], self)
+                                    Extension(50 + (BUTTON_SIZE + 25) * i, 50, amt, DARK_COLS[self.turn], COLS[self.turn], self)
+                                Pause(800 - 50 - BUTTON_SIZE, 50, DARK_COLS[self.turn], COLS[self.turn], self)
                             else:
                                 self.next_turn()
             pygame.display.update()
@@ -148,7 +150,7 @@ class Game:
                 return
             self.stime = time.perf_counter()
             self.turn = self.order[self.turn_index] if self.game_stage == 1 else self.place_order[self.turn_index]
-            Pause(700, 50, DARK_COLS[self.turn], COLS[self.turn], self)
+            Pause(800 - 50 - BUTTON_SIZE, 50, DARK_COLS[self.turn], COLS[self.turn], self)
         else:
             self.stage = 0
             self.turn_index = (self.turn_index + 1) % len(self.order)
@@ -177,7 +179,7 @@ class Game:
                         self.shade = max(0, self.shade)
                     if self.paused:
                         self.shade = 75
-                    write(f"{mins}:{secs}", (400, 400), [self.shade for _ in range(3)], 80, screen)
+                    write(f"{mins}:{secs}", (400, 400), [self.shade for _ in range(3)], 90, screen)
                 else:
                     self.next_turn()
         else:

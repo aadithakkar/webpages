@@ -337,7 +337,8 @@ class Game:
         # Button(HALF, HALF + 170, 420, 144, f"DIFFICULTY", (150, 120, 0), (200, 180, 0), None)
     def menu(self):
         for spr in all_sprites:
-            spr.kill()
+            if not isinstance(spr, FinalFade):
+                spr.kill()
         s = 250
         self.mode = 0
         Button(250, s, 300, 110, lambda: "PLAY", (0, 120, 170), (0, 180, 200), self.reset)

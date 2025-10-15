@@ -1,6 +1,4 @@
 import pygame
-import numpy as np
-import io
 import sys
 import time
 import asyncio
@@ -8,63 +6,12 @@ import asyncio
 # Initialize pygame mixer
 pygame.init()
 
-def semitones_to_frequency(semitones):
-    """Convert semitones past middle C (C4) to a frequency."""
-    c4_freq = 261.63  # Middle C (C4) in Hz
-    return c4_freq * (2 ** (semitones / 12))
+saved = {}
 
-import pygame
-import numpy as np
-
-def semitones_to_frequency(semitone):
-    """Convert semitone offset from A4 (440 Hz) to frequency."""
-    return 440.0 * (2 ** (semitone / 12.0))
-
-def generate_triangle_wave(frequency, duration=1.0, sample_rate=44100, amplitude=0.5):
-    """Generate a triangle wave with exponential decay."""
-    t = np.linspace(0, duration, int(sample_rate * duration), False)
-    waveform = 2 * np.abs(2 * (t * frequency - np.floor(t * frequency + 0.5))) - 1
-
-    # Apply decay to simulate a plucked/struck instrument
-    decay = np.exp(-3 * t)
-    waveform = waveform * decay * amplitude
-
-    return waveform.astype(np.float32)  # keep float until final mix
-
-def mix_notes(semitones_list, duration=1.0):
-    """Generate and mix multiple triangle waves together."""
-    if not semitones_list:
-        raise ValueError("At least one note must be provided.")
-
-    sample_rate = 44100
-    mixed_wave = np.zeros(int(sample_rate * duration), dtype=np.float32)
-
-    for semitone in semitones_list:
-        frequency = semitones_to_frequency(semitone)
-        wave = generate_triangle_wave(frequency, duration, amplitude=0.4)
-        mixed_wave[:len(wave)] += wave
-
-    # Normalize
-    max_val = np.max(np.abs(mixed_wave))
-    if max_val > 0:
-        mixed_wave /= max_val
-
-    # Convert to stereo int16 for pygame
-    stereo_wave = np.column_stack((mixed_wave, mixed_wave))
-    stereo_wave = np.int16(stereo_wave * 32767)
-
-    return stereo_wave
-
-def play_notes(semitones_list, duration=1.0):
-    """Generate, mix, and play notes using pygame."""
-    pygame.mixer.pre_init(44100, -16, 2)
-    pygame.init()
-
-    sound_array = mix_notes(semitones_list, duration)
-    sound = pygame.sndarray.make_sound(sound_array)
-    sound.play()
-
-    # pygame.time.wait(int(duration * 1000) + 100)
+def play(pitch):
+    if pitch not in saved:
+        saved[pitch] = pygame.mixer.Sound(f"note_set/note{pitch}.wav")
+    saved[pitch].play()
 
 screen = pygame.display.set_mode([600, 600])
 pygame.display.set_caption("PlayPad")
@@ -134,9 +81,41 @@ class RecTile(Tile):
             self.game.rec = 1
         else:
             self.game.rec = 0
+            self.game.last = time.perf_counter()
         self.anim()
     def text(self):
         return self.state
+
+class ChordTile(Tile):
+    def __init__(self, x, y, game):
+        super().__init__(x, y)
+        self.game = game
+        self.arp = 0
+    def play(self):
+        self.arp = (self.arp + 1) % 4
+        self.game.bass_index = 0
+        match self.arp:
+            case 0:
+                self.game.played_bass = self.game.bass
+            case 2:
+                nl = []
+                for n in self.game.bass:
+                    nl += [n, n + 4, n + 7, n + 9, n + 7, n + 4, n, n + 4]
+                self.game.played_bass = nl
+            case 1:
+                nl = []
+                for n in self.game.bass:
+                    nl += [n, n + 4, n + 7, n + 4]
+                self.game.played_bass = nl
+            case 3:
+                nl = []
+                for n in self.game.bass:
+                    # nl += [n, n + 7, n + 4, n + 7] * 2
+                    nl += [n, n + 4, n + 2, n + 4] * 2
+                self.game.played_bass = nl
+        self.anim()
+    def text(self):
+        return ["", "3C", "4C", "3I"][self.arp]
 
 class SpeedTile(Tile):
     def __init__(self, x, y, game):
@@ -161,8 +140,20 @@ class MusicTile(Tile):
         self.index = index
         self.times = 0
     def play(self):
-        play_notes([self.pitch])
-        self.anim()
+        print(self.pitch)
+        if self.index is None:
+            place = pygame.mouse.get_pos()[0] - self.rect.x
+            if 10 < place < 90:
+                pitch = self.pitch
+                self.anim()
+            elif place > 90:
+                pitch = self.pitch + 1
+            else:
+                pitch = self.pitch - 1
+        else:
+            pitch = self.pitch
+            self.anim()
+        play(pitch)
     def text(self):
         return notes[self.pitch % 12]
 
@@ -174,6 +165,7 @@ class ResetTile(Tile):
     def play(self):
         self.game.bass = []
         self.game.bass_index = 0
+        self.game.played_bass = self.game.bass
         self.anim()
     def text(self):
         return "RST"
@@ -193,10 +185,14 @@ class Game:
     def __init__(self):
         self.running = True
         self.clock = pygame.time.Clock()
+        # malkauns = [0, 3, 5, 8, 10]
         scale = [0, 2, 4, 5, 7, 9, 11]
         # scale = [0, 2, 3, 5, 7, 8, 10]
+        # scale = [0, 2, 3, 5, 7, 8, 10, 11]
+        # scale = [0, 2, 3, 5, 7, 8, 11]
+        # scale = malkauns
         # scale = [i for i in range(12)]
-        offset = 0
+        offset = 2
         index = 0
         self.tab = 0
         for y in range(6):
@@ -214,6 +210,7 @@ class Game:
                 self.bass_tiles[index] = MusicTile(x * 100, y * 100 + 100, pitch, index)
                 index += 1
         self.bass = []
+        self.played_bass = self.bass
         self.bass_index = 0
         # RecTile(0, 0, self)
         # SpeedTile(100, 0, self)
@@ -227,34 +224,36 @@ class Game:
             ResetTile(100, 0, self)
             MoreTile(200, 0, self)
         else:
+            ChordTile(0, 0, self)
             SpeedTile(100, 0, self)
             MoreTile(200, 0, self)
     async def run(self):
         while self.running:
-            while self.running:
-                all_sprites.update()
-                draw_screen(screen)
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                        sys.exit()
-                    elif event.type == pygame.MOUSEBUTTONDOWN:
-                        for tile in all_sprites:
-                            if tile.rect.collidepoint(pygame.mouse.get_pos()):
-                                tile.play()
-                                if self.rec and tile.index is not None:
-                                    self.bass.append(tile.index)
-                                    print()
-                    elif event.type == pygame.KEYDOWN:
-                        self.bass_index = 0
-                if not self.rec:
-                    if time.perf_counter() - self.last > self.gap and self.bass:
-                        self.last = time.perf_counter()
-                        self.bass_tiles[self.bass[self.bass_index]].play()
-                        self.bass_index = (self.bass_index + 1) % len(self.bass)
-                pygame.display.update()
-                self.clock.tick(60)
-                await asyncio.sleep(0)
+            # print(self.bass)
+            all_sprites.update()
+            draw_screen(screen)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    for tile in all_sprites:
+                        if tile.rect.collidepoint(pygame.mouse.get_pos()):
+                            tile.play()
+                            if self.rec and tile.index is not None:
+                                self.bass.append(tile.index)
+                                print()
+                elif event.type == pygame.KEYDOWN:
+                    self.bass_index = 0
+            if not self.rec:
+                if time.perf_counter() - self.last > self.gap and self.played_bass:
+                    # self.last = time.perf_counter()
+                    self.last += self.gap
+                    self.bass_tiles[self.played_bass[self.bass_index]].play()
+                    self.bass_index = (self.bass_index + 1) % len(self.played_bass)
+            pygame.display.update()
+            self.clock.tick(60)
+            await asyncio.sleep(0)
 
 def draw_screen(screen):
     screen.fill((18, 18, 18))

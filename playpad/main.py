@@ -33,7 +33,7 @@ cols = [(150, 0, 0),
 class Tile(pygame.sprite.Sprite):
     def __init__(self, x, y):
         if isinstance(self, MusicTile):
-            self.groups = all_sprites
+            self.groups = all_sprites, musictiles
         else:
             self.groups = all_sprites, tabs
         pygame.sprite.Sprite.__init__(self, self.groups)
@@ -186,15 +186,31 @@ class Game:
         self.running = True
         self.clock = pygame.time.Clock()
         # malkauns = [0, 3, 5, 8, 10]
-        scale = [0, 2, 4, 5, 7, 9, 11]
         # scale = [0, 2, 3, 5, 7, 8, 10]
         # scale = [0, 2, 3, 5, 7, 8, 10, 11]
         # scale = [0, 2, 3, 5, 7, 8, 11]
         # scale = malkauns
         # scale = [i for i in range(12)]
-        offset = 2
+        
+        # RecTile(0, 0, self)
+        # SpeedTile(100, 0, self)
+        self.rec = 1
+        self.offset = 0
+        self.lastnote = 0
+        self.create_music_tiles()
+        self.load_tab()
+    def create_music_tiles(self):
+        print(all_sprites)
+        for spr in musictiles:
+            spr.kill()
+        if self.offset != self.lastnote:
+            scale = [0, 2, 3, 5, 7, 8, 10]
+        else:
+            scale = [0, 2, 4, 5, 7, 9, 11]
+        self.offset = self.lastnote
         index = 0
         self.tab = 0
+        offset = self.offset
         for y in range(6):
             for x in range(3):
                 pitch = scale[index % len(scale)] + (index // len(scale)) * 12 + offset
@@ -212,10 +228,6 @@ class Game:
         self.bass = []
         self.played_bass = self.bass
         self.bass_index = 0
-        # RecTile(0, 0, self)
-        # SpeedTile(100, 0, self)
-        self.rec = 1
-        self.load_tab()
     def load_tab(self):
         for spr in tabs:
             spr.kill()
@@ -237,12 +249,22 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse = pygame.mouse.get_pos()
+                    lmx, lmy = mouse
                     for tile in all_sprites:
-                        if tile.rect.collidepoint(pygame.mouse.get_pos()):
+                        if tile.rect.collidepoint(mouse):
                             tile.play()
+                            if isinstance(tile, MusicTile):
+                                self.lastnote = (tile.pitch + 5) % 12 - 5
                             if self.rec and tile.index is not None:
                                 self.bass.append(tile.index)
                                 print()
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    mx, my = pygame.mouse.get_pos()
+                    if mx < 100 and my < 100:
+                        if lmx >= 100 or lmy >= 100:
+                            print("swapping to", self.lastnote)
+                            self.create_music_tiles()
                 elif event.type == pygame.KEYDOWN:
                     self.bass_index = 0
             if not self.rec:
@@ -261,6 +283,7 @@ def draw_screen(screen):
 
 all_sprites = pygame.sprite.LayeredUpdates()
 tabs = pygame.sprite.Group()
+musictiles = pygame.sprite.Group()
 
 def write(txt, pos, col, size, surf):
     font = pygame.font.Font(None, size)

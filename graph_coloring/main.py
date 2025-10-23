@@ -131,6 +131,14 @@ class Game:
     def __init__(self):
         self.running = True
         self.clock = pygame.time.Clock()
+        self.controls = 0
+        self.control_descs = ["CTRL + Click  -  Create New Vertex",
+                              "SHIFT + Click  -  Select Vertex / Create Edge",
+                              "ENTER  -  Idenitfy 4-Coloring",
+                              "/  -  Organize Graph",
+                              "BACKSPACE  -  Delete Selected Vertex",
+                              "C  -  Clear Colors",
+                              "R  -  Reset Simulation"]
         self.reset()
     def reset(self):
         self.vertices = [Vertex(400, 400, 0)]
@@ -187,33 +195,44 @@ class Game:
                                     w.adj.remove(v)
                                     v.adj.remove(w)
                             self.edges = ne
+                    elif event.unicode and event.unicode in "1234":
+                        if self.selected:
+                            self.selected.color = int(event.unicode) - 1
+                            self.selected.selected = False
+                            self.selected = None
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    mx, my = pygame.mouse.get_pos()
-                    keys = pygame.key.get_pressed()
-                    if keys[pygame.K_LCTRL]:
-                        self.vertices.append(Vertex(mx, my, self.vertexid))
-                        self.vertexid += 1
-                    # elif keys[pygame.K_LSHIFT]:
-                    #     if not self.selected:
-                    #         self.selected = 
+                    if self.controls:
+                        self.controls = 0
                     else:
-                        clicked = None
-                        for vertex in self.vertices:
-                            if (mx - vertex.x) ** 2 + (my - vertex.y) ** 2 <= 400:
-                                clicked = vertex
-                                break
-                        if clicked:
-                            if keys[pygame.K_LSHIFT]:
-                                if not self.selected:
-                                    self.selected = clicked
-                                    clicked.selected = True
-                                else:
-                                    self.new_edge(self.selected, clicked)
-                                    self.selected.selected = False
-                                    self.selected = None
-                                    # print(self.vertices, self.edge_pairs)
+                        mx, my = pygame.mouse.get_pos()
+                        if my < 50 and mx < 150:
+                            self.controls = 1
+                        else:
+                            keys = pygame.key.get_pressed()
+                            if keys[pygame.K_LCTRL]:
+                                self.vertices.append(Vertex(mx, my, self.vertexid))
+                                self.vertexid += 1
+                            # elif keys[pygame.K_LSHIFT]:
+                            #     if not self.selected:
+                            #         self.selected = 
                             else:
-                                clicked.dragging = 1
+                                clicked = None
+                                for vertex in self.vertices:
+                                    if (mx - vertex.x) ** 2 + (my - vertex.y) ** 2 <= 400:
+                                        clicked = vertex
+                                        break
+                                if clicked:
+                                    if keys[pygame.K_LSHIFT]:
+                                        if not self.selected:
+                                            self.selected = clicked
+                                            clicked.selected = True
+                                        else:
+                                            self.new_edge(self.selected, clicked)
+                                            self.selected.selected = False
+                                            self.selected = None
+                                            # print(self.vertices, self.edge_pairs)
+                                    else:
+                                        clicked.dragging = 1
                 elif event.type == pygame.MOUSEBUTTONUP:
                     for vertex in self.vertices:
                         vertex.dragging = 0
@@ -222,13 +241,18 @@ class Game:
             await asyncio.sleep(0)
     def draw_screen(self, screen):
         screen.fill((18, 18, 18))
-        for edge in self.edges:
-            edge.draw()
-        for vertex in self.vertices:
-            vertex.draw()
-        write(f"Order: {len(self.vertices)}", (100, 750), (150, 150, 150), 50, screen)
-        write(f"Size: {len(self.edges)}", (700, 750), (150, 150, 150), 50, screen)
-        all_sprites.draw(screen)
+        if not self.controls:
+            for edge in self.edges:
+                edge.draw()
+            for vertex in self.vertices:
+                vertex.draw()
+            write(f"Order: {len(self.vertices)}", (100, 750), (150, 150, 150), 50, screen)
+            write(f"Size: {len(self.edges)}", (700, 750), (150, 150, 150), 50, screen)
+            write("CONTROLS", (70, 30), (200, 200, 200), 30, screen)
+            all_sprites.draw(screen)
+        else:
+            for i in range(7):
+                write(self.control_descs[i], (400, i * 100 + 100), (200, 200, 200), 50, screen)
     def clear(self):
         for vertex in self.vertices:
             vertex.color = -1

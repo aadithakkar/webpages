@@ -134,7 +134,7 @@ class Game:
         self.controls = 0
         self.control_descs = ["CTRL + Click  -  Create New Vertex",
                               "SHIFT + Click  -  Select Vertex / Create Edge",
-                              "ENTER  -  Idenitfy 4-Coloring",
+                              "ENTER  -  Identify 4-Coloring",
                               "/  -  Organize Graph",
                               "BACKSPACE  -  Delete Selected Vertex",
                               "C  -  Clear Colors",

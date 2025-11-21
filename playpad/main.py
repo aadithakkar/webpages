@@ -139,9 +139,12 @@ class MusicTile(Tile):
         self.shade = 100
         self.index = index
         self.times = 0
-    def play(self):
+    def play(self, offset=None):
         print(self.pitch)
-        if self.index is None:
+        if offset is not None:
+            pitch = self.pitch + offset
+            self.anim()
+        elif self.index is None:
             place = pygame.mouse.get_pos()[0] - self.rect.x
             if 10 < place < 90:
                 pitch = self.pitch
@@ -197,6 +200,9 @@ class Game:
         self.rec = 1
         self.offset = 0
         self.lastnote = 0
+        self.lowerkeys = "q2w3er5t6y7ui9o0pzsxdcfvbhnjm,l.;/'"
+        self.upperkeys = 'Q@W#ER%T^Y&UI(O)PZSXDCFVBHNJM<L>:?"'
+        self.keys = self.lowerkeys + " " + self.upperkeys
         self.create_music_tiles()
         self.load_tab()
     def create_music_tiles(self):
@@ -211,10 +217,11 @@ class Game:
         index = 0
         self.tab = 0
         offset = self.offset
+        self.melody_tiles = {}
         for y in range(6):
             for x in range(3):
                 pitch = scale[index % len(scale)] + (index // len(scale)) * 12 + offset
-                MusicTile(300 + x * 100, y * 100, pitch)
+                self.melody_tiles[pitch] = MusicTile(300 + x * 100, y * 100, pitch)
                 index += 1
         self.last = time.perf_counter()
         self.gap = 0.5
@@ -266,7 +273,17 @@ class Game:
                             print("swapping to", self.lastnote)
                             self.create_music_tiles()
                 elif event.type == pygame.KEYDOWN:
-                    self.bass_index = 0
+                    unicode = event.unicode
+                    print(unicode, unicode in self.keys)
+                    if unicode and unicode in self.keys:
+                        pitch = self.keys.index(unicode) - 12
+                        if pitch >= 24:
+                            pitch -= 24
+                        print(pitch)
+                        if pitch in self.melody_tiles:
+                            self.melody_tiles[pitch].play(0)
+                        else:
+                            play(pitch)
             if not self.rec:
                 if time.perf_counter() - self.last > self.gap and self.played_bass:
                     # self.last = time.perf_counter()
